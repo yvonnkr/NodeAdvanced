@@ -21,7 +21,7 @@ mongoose.Query.prototype.cache = async function (options = {}) {
 //overwrite existing func defined by mongoose and serve in our own custom implementation
 mongoose.Query.prototype.exec = async function () {
   if (!this.useCache) {
-    console.log("1 FETCHED FROM MONGODB");
+    // console.log("1 FETCHED FROM MONGODB");
 
     return exec.apply(this, arguments);
   }
@@ -38,7 +38,7 @@ mongoose.Query.prototype.exec = async function () {
   //if we do return that
   if (cacheValue) {
     const doc = JSON.parse(cacheValue);
-    console.log("2 FETCHED FROM CACHE");
+    // console.log("2 FETCHED FROM CACHE");
 
     return Array.isArray(doc)
       ? doc.map((d) => new this.model(d))
@@ -50,7 +50,7 @@ mongoose.Query.prototype.exec = async function () {
 
   client.hmset(this.hashKey, key, JSON.stringify(result), "EX", 10);
   //   client.hset(this.hashKey, key, JSON.stringify(result), "EX", 10); //hset throws error used hmset instead
-  console.log("3 FETCHED FROM MONGODB");
+  // console.log("3 FETCHED FROM MONGODB");
 
   return result;
 };
