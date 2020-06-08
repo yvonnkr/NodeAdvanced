@@ -63,38 +63,34 @@ describe("When logged in,", async () => {
   });
 });
 
-//TODO:
 //since on client side we cannot directly click to add post/view post when not logged in
 //this test is basically to test our backend api
 describe("When user is Not logged in", async () => {
   test("user cannot create blog posts", async () => {
-    const result = await page.evaluate(() => {
-      return fetch("/api/blogs", {
-        method: "POST",
-        credentials: "same-origin",
-        headers: {
-          "Content-Type": "apllication/json",
-        },
-        body: JSON.stringify({ title: "My Title", content: "My Content" }),
-      }).then((res) => res.json());
-    });
-
-    // console.log("RESULT:", result);
+    const path = "/api/blogs";
+    const data = { title: "My Title", content: "My Content" };
+    const result = await page.post(path, data);
 
     expect(result).toEqual({ error: "You must log in!" });
   });
 
   test("user cannot view list of blogs", async () => {
-    const result = await page.evaluate(() => {
-      return fetch("/api/blogs", {
-        method: "GET",
-        credentials: "same-origin",
-        headers: {
-          "Content-Type": "apllication/json",
-        },
-      }).then((res) => res.json());
-    });
+    const result = await page.get("/api/blogs");
 
     expect(result).toEqual({ error: "You must log in!" });
+  });
+
+  //handle multiple routes --same above tests just in one
+  const actions = [
+    { method: "get", path: "/api/blogs" },
+    { method: "post", path: "/api/blogs", data: { title: "T", content: "C" } },
+  ];
+
+  test("blog related actions are prohibited", async () => {
+    const results = await page.execRequests(actions);
+
+    for (let result of results) {
+      expect(result).toEqual({ error: "You must log in!" });
+    }
   });
 });
